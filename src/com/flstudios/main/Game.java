@@ -190,7 +190,7 @@ import com.flstudios.world.World;
 			g.setColor(Color.white);
 			g.drawImage(image, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
 			g.setFont(new Font("Arial", Font.BOLD, 20));
-			g.drawString("Munição: "+ Player.ammoAtual + "/" + Player.ammoSafe, WIDTH*SCALE - 140, 20);
+			g.drawString("Muni\u00E7\u00E3o: "+ Player.ammoAtual + "/" + Player.ammoSafe, WIDTH*SCALE - 140, 20);
 			
 			if(gameState == "GAME_OVER") {
 				Graphics2D g2 = (Graphics2D) g;
