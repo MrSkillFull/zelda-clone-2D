@@ -1,51 +1,68 @@
+// importando classe do jogador
 package com.flstudios.entities;
 
+// importando bibliotecas java
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
-import com.flstudios.graficos.Spritesheet;
+// importando objetos próprios
 import com.flstudios.main.Game;
 import com.flstudios.main.Sound;
 import com.flstudios.world.Camera;
 import com.flstudios.world.World;
 
+/**
+ * Entidade do jogador.
+ *
+ * Responsabilidades:
+ * - Movimentação + animação (direita/esquerda)
+ * - Vida e feedback de dano
+ * - Coleta de itens (vida/munição/arma)
+ * - Disparo (tecla X e mouse) + recarga
+ */
 public class Player extends Entity {
 
-	public boolean right, left, up, down;
-	public int right_dir = 0, left_dir = 1;
-	public int dir = right_dir;
-	public double speed = 1.0;
+	// input/movimento
+	public boolean right, left, up, down; // flags setadas pelo Game via teclado
+	public int right_dir = 0, left_dir = 1; // direções lógicas
+	public int dir = right_dir; // direção atual
+	public double speed = 1.0; // velocidade de movimento
 	
-	private int frames = 0, maxFrames = 5, index = 0, maxIndex = 3;
-	public double life = 100, maxLife = 100;
-	private int maskx = 10, masky = 10, maskw = 10, maskh = 10;
-	private boolean moved = false;
+	// animação
+	private int frames = 0, maxFrames = 5, index = 0, maxIndex = 3; // controle de frames/índice
+	
+	// vida/dano
+	public double life = 100, maxLife = 100; // vida atual e máxima
+	private boolean moved = false; // indica se o jogador se moveu neste tick
+	
+	// sprites (animações e feedback)
 	private BufferedImage[] rightPlayer;
 	private BufferedImage[] leftPlayer;
-	
 	private BufferedImage playerDamageRight;
 	private BufferedImage playerDamageLeft;
 	
+	// munição (estado global exibido na HUD)
 	public static int ammoAtual = 0,ammoAtualMax = 10,ammoSafe = 10, ammoSafeMax = 60,  maxAmmo = ammoAtualMax + ammoSafeMax;
-	public static boolean reloading = false;
-	public static int currentFramesReloading = 0, maxFramesReloading = 60;
+	public static boolean reloading = false; // indica se está recarregando (usado para desenhar barra)
+	public static int currentFramesReloading = 0, maxFramesReloading = 60; // controle da barra de recarga
 	
-	public boolean arma;
-	public boolean shoot = false;
-	public boolean mouseShoot = false;
+	// combate
+	public boolean arma; // indica se possui arma
+	public boolean shoot = false; // disparo via teclado (X)
+	public boolean mouseShoot = false; // disparo via mouse
 	
+	// feedback de dano
 	public boolean isDamaged = false;
 	private int damageFrames = 0;
 	
+	// posição do mouse (coordenadas na tela com escala aplicada no Game)
 	public int mx, my;
-	
 	
 	public Player(int x, int y, int width, int height, BufferedImage sprite) {
 		super(x, y, width, height, sprite);
 		
+		// carrega frames do spritesheet
 		rightPlayer = new BufferedImage[4];
 		leftPlayer = new BufferedImage[4];
 		playerDamageRight = Game.spritesheet.getSprite(0, 16, 16, 16);
@@ -58,14 +75,18 @@ public class Player extends Entity {
 			}
 	}
 	
+	/**
+	 * Atualização por frame do jogador.
+	 */
 	public void tick() {
+		// estado de recarga (exibido na render)
 		reloading = false;
 		if(ammoAtual == 0 && ammoSafe > 0 && arma) {
 			reloading = true;
 		}else
 			reloading = false;
 		
-		
+		// movimentação + colisão com paredes
 		moved = false;
 		if(right && World.isFree((int)(x+speed), this.getY())) {
 			moved = true;
@@ -84,7 +105,7 @@ public class Player extends Entity {
 			y+=speed;
 		}
 		
-		
+		// animação de caminhada
 		if(moved) {
 			//System.out.println(index);
 			frames++;
@@ -97,6 +118,7 @@ public class Player extends Entity {
 			}
 		}
 		
+		// janela de invulnerabilidade/feedback (pisca por alguns frames)
 		if(isDamaged) {
 			this.damageFrames++;
 			if(this.damageFrames == 30) {
@@ -104,11 +126,14 @@ public class Player extends Entity {
 				isDamaged = false;
 			}
 		}
+		
+		// colisões com pickups
 		this.checkCollisionLifePack();
 		this.checkCollisionAmmo();
 		this.checkCollisionWeapon();
 		
 			
+		// disparo via teclado (X)
 			if( arma == true && ammoAtual > 0 && shoot == true) {
 				shoot = false;
 				Sound.shoot.play();
@@ -127,6 +152,7 @@ public class Player extends Entity {
 			Game.bullets.add(bullet);
 			}
 		
+		// disparo via mouse (calcula direção pelo ângulo)
 		if(arma && ammoAtual > 0 && mouseShoot) {
 			mouseShoot = false;
 			Sound.shoot.play();
@@ -157,19 +183,23 @@ public class Player extends Entity {
 			
 		}
 		
+		// condição de game over
 		if(life <= 0) {
 			//Game Over!
 			life = 0;
 			Game.gameState = "GAME_OVER";
 		}
 		
-		
+		// câmera segue o jogador, limitada ao tamanho do mapa
 		Camera.x = Camera.clamp(this.getX() - (Game.WIDTH/2), 0,World.WIDTH*16 - Game.WIDTH) ;
 		Camera.y = Camera.clamp(this.getY() - (Game.HEIGHT/2), 0,World.HEIGHT*16 - Game.HEIGHT) ;	
 		
 		
 	}
 	
+	/**
+	 * Coleta de life pack: recupera uma quantidade randômica de vida.
+	 */
 	public void checkCollisionLifePack() {
 		for(int i = 0; i < Game.entities.size(); i++) {
 			Entity atual = Game.entities.get(i);
@@ -189,6 +219,9 @@ public class Player extends Entity {
 		}
 	}
 	
+	/**
+	 * Coleta de munição: adiciona munição ao estoque (ammoSafe).
+	 */
 	public void checkCollisionAmmo() {
 		for(int i = 0; i < Game.entities.size(); i++) {
 			Entity atual = Game.entities.get(i);
@@ -200,13 +233,16 @@ public class Player extends Entity {
 					if(ammoSafe > ammoSafeMax) {
 						ammoSafe = ammoSafeMax;
 					}
-					//System.out.println("Muni��o Atual: "+ammo);
+					//System.out.println("Muni��o Atual: "+ammo);
 				}
 				
 			}
 		}
 	}
 	
+	/**
+	 * Coleta de arma: habilita o estado arma e dá munição inicial.
+	 */
 	public void checkCollisionWeapon() {
 		for(int i = 0; i < Game.entities.size(); i++) {
 			Entity atual = Game.entities.get(i);
@@ -224,6 +260,9 @@ public class Player extends Entity {
 	
 	
 	
+	/**
+	 * Renderização do jogador (sprites + arma + barra de recarga).
+	 */
 	public void render(Graphics g) {
 		if(!isDamaged) {
 		if(dir == right_dir) {
@@ -259,6 +298,7 @@ public class Player extends Entity {
 			
 		}
 		
+		// barra de recarga (quando acabou munição atual mas ainda há reserva)
 		if(Game.player.reloading == true) {
 			g.setColor(Color.red);
 			g.fillRect(this.getX() - Camera.x, this.getY() - 5 - Camera.y, this.maxFramesReloading /3,5);
@@ -275,6 +315,5 @@ public class Player extends Entity {
 				this.currentFramesReloading = 0;
 			}
 		}
-		
 	}
 }
