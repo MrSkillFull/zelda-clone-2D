@@ -4,3 +4,7 @@ bin/
 .project
 .classpath
 .settings/
+
+# Ignore arquivos binários
+*.class
+*.jar

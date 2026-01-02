@@ -1,6 +1,8 @@
+// importando classe principal
 package com.flstudios.main;
 
-	import java.awt.Canvas;
+// importando bibliotecas java
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -15,9 +17,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import javax.swing.JFrame;
 
+// importando objetos próprios
 import com.flstudios.entities.BulletShoot;
 import com.flstudios.entities.Enemy;
 import com.flstudios.entities.Entity;
@@ -26,44 +28,46 @@ import com.flstudios.graficos.Spritesheet;
 import com.flstudios.graficos.UI;
 import com.flstudios.world.World;
 
+	// classe principal do jogo
 	public class Game extends Canvas implements Runnable, KeyListener, MouseListener{
 
-		public static final int WIDTH = 240;
-		public static final int HEIGHT = 160;
-		public static final int SCALE = 3;
-		
-		private int CUR_LEVEL = 1, MAX_LEVEL = 3;
-		
-		public static String natela;
-		int frames = 0;
-		public int fpsAtual;
-		
-		public static Random rand;
-		
-		public static JFrame frame;
-		private Thread thread;
-		private BufferedImage image;
-		
-		public static List<Entity> entities;
-		public static List<Enemy> enemies;
-		public static List<BulletShoot> bullets;
-		public static Spritesheet spritesheet;
-		
-		
-		public static Player player;
-		
-		public static World world;
-		
-		public UI ui;
-		
-		public Menu menu;
-		
-		public static String gameState = "MENU"; 
-		private static boolean showMessageGameOver = true;
-		private int currentFramesGameOver = 0, maxFramesGameOver = 30;
-		private boolean restartGame = false;
-		
-		private boolean isRunning = false;
+		// constantes de tela
+		public static final int WIDTH = 240, HEIGHT = 160, SCALE = 3;    // definindo largura, altura e escala da tela do jogo
+
+		// exibição de FPS
+		public static String strFPS;                                    // string para mostrar o FPS na tela
+		private int frames = 0;                                         // contador de frames
+		private int fpsAtual;                                           // frames por segundo atual
+
+		// estado do jogo
+		public static String gameState = "MENU";                      // estado atual do jogo
+
+		// objetos estáticos compartilhados
+		public static Random rand;                                      // objeto para geração de números randômicos
+		private static JFrame frame;                                    // janela principal do jogo
+		private Thread thread;                                          // thread principal para execução do loop do jogo
+		private BufferedImage imgLayer;                                 // camada de imagem bufferizada para renderização
+
+		// coleções de entidades e recursos
+		public static List<Entity> entities;                            // lista de entidades do jogo
+		public static List<Enemy> enemies;                              // lista de inimigos do jogo
+		public static List<BulletShoot> bullets;                        // lista de projéteis do jogador
+		public static Spritesheet spritesheet;                          // spritesheet contendo sprites do jogo
+
+		// objetos de jogo (instância)
+		public static Player player;                                    // objeto jogador
+		public static World world;                                      // objeto de geração do mundo/level
+		public UI ui;                                                   // interface do usuário
+		public Menu menu;                                               // menu do jogo
+
+		// controle de níveis e reinício
+		private int CUR_LEVEL = 1, MAX_LEVEL = 3;                       // nível atual e nível máximo do jogo
+		private int currentFramesGameOver = 0, maxFramesGameOver = 30;  // controle de animação da mensagem de game over (frames)
+		private boolean restartGame = false;                            // indica se o jogo deve reiniciar
+
+		// controle do laço principal
+		private boolean isRunning = false;                              // controle do laço principal do jogo
+		private static boolean showMessageGameOver = true;              // flag para alternar a exibição da mensagem de game over
 		
 		public static void main(String[] args) {
 			Game game = new Game();
@@ -78,7 +82,7 @@ import com.flstudios.world.World;
 			addMouseListener(this);
 			initFrame();
 			//inicializando objetos
-			image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+			imgLayer = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 			entities = new ArrayList<Entity>();
 			enemies = new ArrayList<Enemy>();
 			bullets = new ArrayList<BulletShoot>();
@@ -118,14 +122,12 @@ import com.flstudios.world.World;
 				Entity e = entities.get(i);
 				e.tick();
 			}
-			//System.out.println("Atualizando...");
 			
 			for(int i = 0; i<bullets.size(); i++) {
 				bullets.get(i).tick();
 			}
 			
 			if(enemies.size() == 0) {
-				//System.out.println("Proximo level");
 				CUR_LEVEL++;
 				if(CUR_LEVEL > MAX_LEVEL) {
 					CUR_LEVEL = 1;
@@ -165,7 +167,7 @@ import com.flstudios.world.World;
 				return;
 			}
 			
-			Graphics g = image.getGraphics();
+			Graphics g = imgLayer.getGraphics();
 			g.setColor(new Color(0, 0, 0));
 			g.fillRect(0, 0, WIDTH, HEIGHT);
 			
@@ -181,14 +183,14 @@ import com.flstudios.world.World;
 			if(gameState == "NORMAL") {
 			g.setColor(Color.GREEN);
 			g.setFont(new Font("Arial", Font.ITALIC, 9));
-			g.drawString(natela,WIDTH -35, HEIGHT);
+			g.drawString(strFPS,WIDTH -35, HEIGHT);
 			}
 			ui.render(g);
 			
 			g.dispose();
 			g = bs.getDrawGraphics();
 			g.setColor(Color.white);
-			g.drawImage(image, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
+			g.drawImage(imgLayer, 0, 0, WIDTH*SCALE, HEIGHT*SCALE, null);
 			g.setFont(new Font("Arial", Font.BOLD, 20));
 			g.drawString("Muni\u00E7\u00E3o: "+ Player.ammoAtual + "/" + Player.ammoSafe, WIDTH*SCALE - 140, 20);
 			
@@ -209,7 +211,6 @@ import com.flstudios.world.World;
 			}
 			
 			bs.show();
-			//System.out.println("Renderizando...");
 		}
 		
 		
@@ -224,7 +225,7 @@ import com.flstudios.world.World;
 			
 			double timer = System.currentTimeMillis();
 		while(isRunning) {
-			natela = "FPS: " + fpsAtual;
+			strFPS = "FPS: " + fpsAtual;
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
 			lastTime = now;
@@ -238,13 +239,9 @@ import com.flstudios.world.World;
 			
 			if(System.currentTimeMillis() - timer >= 1000) {
 				fpsAtual = frames;
-			//	System.out.println("FPS: " + frames);
 				frames = 0;
 				timer = System.currentTimeMillis();
 			}
-			
-			
-			//System.out.println("jogo roda.");
 		}
 			
 	}
@@ -295,19 +292,15 @@ import com.flstudios.world.World;
 		public void keyReleased(KeyEvent e) {
 			if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
 				player.right = false;
-				//System.out.println("direita");
 			}
 			else if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
 				player.left = false;
-				//System.out.println("esquerda");
 			}
 			if(e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
 				player.up = false;
-				//System.out.println("cima");
 			}
 			else if(e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
 				player.down = false;
-				//System.out.println("baixo");
 			}
 			if(e.getKeyCode() == KeyEvent.VK_X ) {
 				player.shoot = true;
@@ -355,7 +348,5 @@ import com.flstudios.world.World;
 		@Override
 		public void mouseReleased(MouseEvent e) {
 				player.mouseShoot = false;	
-			
 	}
-
 }
