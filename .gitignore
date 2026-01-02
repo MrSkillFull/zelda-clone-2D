@@ -1,0 +1,6 @@
+# Ignore arquivos de build e configurações do IDE
+bin/
+.vscode/
+.project
+.classpath
+.settings/
