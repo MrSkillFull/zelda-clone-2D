@@ -1,0 +1,11 @@
+Adicionar novas fases
+Trocar trilha sonora
+Adicionar novas armas
+Adicionar novos inimigos
+Adicionar modo dois jogadores
+Adicionar sistema de estamina ao correr
+Adicionar sistema de power up para inimigos com pouca vida
+Adicionar reload manual da arma quando munição < 10                                     (feito)
+Consertar bug de tiro automático após reload automático por falta de munição            (feito)
+Implementar lógica do método Stop para melhor gerenciamento de recursos e segurança     (feito)
+Implementar sistema de save game

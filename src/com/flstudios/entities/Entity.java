@@ -112,7 +112,5 @@ public class Entity {
 	 */
 	public void render(Graphics g) {
 		g.drawImage(sprite, this.getX() - Camera.x, this.getY() - Camera.y, null);
-	//	g.setColor(Color.red);
-	//	g.fillRect(this.getX() + maskx - Camera.x, this.getY() + masky - Camera.y, mwidth, mheight);
 	}
 }

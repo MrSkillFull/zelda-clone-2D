@@ -54,9 +54,9 @@ public class Menu {
 		
 		if(enter) {
 			enter = false;
-			if(options[currentOption] == "novo jogo" || options[currentOption] == "continuar") {
+			if(options[currentOption].equals("novo jogo") || options[currentOption].equals("continuar")) {
 				Game.gameState = "NORMAL";
-			}else if(options[currentOption] == "sair") {
+			}else if(options[currentOption].equals("sair")) {
 				System.exit(1);
 			}
 		}

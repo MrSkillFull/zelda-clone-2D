@@ -53,37 +53,43 @@ public class World {
 				for(int yy = 0; yy < map.getHeight(); yy++) {
 					int pixelAtual = pixels [xx+yy*map.getWidth()];
 					tiles[xx + (yy*WIDTH)] = new FloorTile(xx*16,yy*16, Tile.TILE_FLOOR);
-					if(pixelAtual == 0xFF000000) {
-						// Floor (preto)
+					switch(pixelAtual) {
+					case 0xFF000000: // Floor (preto)
 						tiles[xx + (yy*WIDTH)] = new FloorTile(xx*16,yy*16, Tile.TILE_FLOOR);
-					}else if(pixelAtual == 0xFFFFFFFF) {
-						// Wall / parede (branco)
+						break;
+					case 0xFFFFFFFF: // Wall (branco)
 						tiles[xx + (yy*WIDTH)] = new WallTile(xx*16,yy*16, Tile.TILE_WALL);
-					}else if(pixelAtual == 0xFF0026FF) {
-						// Player (azul)
+						break;
+					case 0xFF0026FF: // Player (azul)
 						Game.player.setX(xx*16);
 						Game.player.setY(yy*16);
-					}else if(pixelAtual == 0xFFFF0000) {
-						// Enemy (vermelho)	
+						break;
+					case 0xFFFF0000: { // Enemy (vermelho)
 						Enemy en = new Enemy(xx*16, yy*16, 16,16, Entity.ENEMY_EN);
 						Game.entities.add(en);
 						Game.enemies.add(en);
-					}else if(pixelAtual == 0xFFFFD800){
-						// Weapon (amarelo)
+						break;
+					}
+					case 0xFFFFD800: // Weapon (amarelo)
 						Game.entities.add(new Weapon(xx*16, yy*16, 16,16, Entity.WEAPON_EN));
-					}else if(pixelAtual == 0xFFFF7F7F) {
-						// Lifepack (rosa)
+						break;
+					case 0xFFFF7F7F: { // Lifepack (rosa)
 						Lifepack pack = new Lifepack(xx*16, yy*16, 16,16, Entity.LIFEPACK_EN);
 						Game.entities.add(pack);
-					}else if(pixelAtual == 0xFFFF6A00) {
-						// Bullet (laranja)
+						break;
+					}
+					case 0xFFFF6A00: // Bullet (laranja)
 						Game.entities.add(new Bullet(xx*16, yy*16, 16,16, Entity.BULLET_EN));
+						break;
+					default:
+						// mantém floor padrão
+						break;
 					}
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		}	
+		}
 	}
 	
 	/**

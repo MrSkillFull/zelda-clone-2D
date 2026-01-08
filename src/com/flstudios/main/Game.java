@@ -61,7 +61,7 @@ import com.flstudios.world.World;
 		public Menu menu;                                               // menu do jogo
 
 		// controle de níveis e reinício
-		private int CUR_LEVEL = 1, MAX_LEVEL = 3;                       // nível atual e nível máximo do jogo
+		private int CUR_LEVEL = 1, MAX_LEVEL = 4;                       // nível atual e nível máximo do jogo
 		private int currentFramesGameOver = 0, maxFramesGameOver = 30;  // controle de animação da mensagem de game over (frames)
 		private boolean restartGame = false;                            // indica se o jogo deve reiniciar
 
@@ -69,18 +69,20 @@ import com.flstudios.world.World;
 		private boolean isRunning = false;                              // controle do laço principal do jogo
 		private static boolean showMessageGameOver = true;              // flag para alternar a exibição da mensagem de game over
 		
+		// método principal
 		public static void main(String[] args) {
 			Game game = new Game();
 			game.start();
 		}
 		
+		// Método construtor
 		public Game() {
-			Sound.music.loop();
+			initFrame();
 			ui = new UI();
 			rand = new Random();
 			addKeyListener(this);
 			addMouseListener(this);
-			initFrame();
+			
 			//inicializando objetos
 			imgLayer = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 			entities = new ArrayList<Entity>();
@@ -90,8 +92,8 @@ import com.flstudios.world.World;
 			player = new Player(0, 0, 16, 16, spritesheet.getSprite(32, 16, 16, 16));
 			entities.add(player);
 			world = new World("/level1.png");
-			
 			menu = new Menu();
+			Sound.music.loop();
 		}
 		
 		public void initFrame() {
@@ -111,37 +113,55 @@ import com.flstudios.world.World;
 			thread.start();
 		}
 		
-		public synchronized void stop() {
-			
+		public synchronized void stop() 
+		{
+			isRunning = false;
+			try 
+			{
+				thread.join();
+			} 
+			catch (InterruptedException e) 
+			{
+				e.printStackTrace();
+			}	
 		}
 		
 		public void tick() {
-			if(gameState == "NORMAL") {
+			if(gameState.equals("NORMAL")) 
+			{
 				this.restartGame = false;
-			for(int i = 0; i < entities.size(); i++) {
-				Entity e = entities.get(i);
-				e.tick();
-			}
-			
-			for(int i = 0; i<bullets.size(); i++) {
-				bullets.get(i).tick();
-			}
-			
-			if(enemies.size() == 0) {
-				CUR_LEVEL++;
-				if(CUR_LEVEL > MAX_LEVEL) {
-					CUR_LEVEL = 1;
+				for(int i = 0; i < entities.size(); i++) 
+				{
+					Entity e = entities.get(i);
+					e.tick();
 				}
-				String newWorld = "level" + CUR_LEVEL + ".png";
-				world.restartGame(newWorld);
+			
+				for(int i = 0; i<bullets.size(); i++) 
+				{
+					bullets.get(i).tick();
+				}
+			
+				if(enemies.size() == 0) {
+					CUR_LEVEL++;
+					if(CUR_LEVEL > MAX_LEVEL) 
+					{
+						CUR_LEVEL = 1;
+					}
+					String newWorld = "level" + CUR_LEVEL + ".png";
+					world.restartGame(newWorld);
+				}
 			}
-		}else if(this.gameState == "MENU") {
-			
+
+			else if(this.gameState.equals("MENU")) 
+			{
 			menu.tick();
-			
-		}else if(this.gameState == "GAME_OVER") {
+			}
+
+			else if(this.gameState.equals("GAME_OVER")) 
+			{
 				this.currentFramesGameOver++;
-				if(this.currentFramesGameOver == this.maxFramesGameOver) {
+				if(this.currentFramesGameOver == this.maxFramesGameOver) 
+				{
 					this.currentFramesGameOver = 0;
 					if(this.showMessageGameOver) {
 						this.showMessageGameOver = false;
@@ -150,7 +170,8 @@ import com.flstudios.world.World;
 				}
 			}
 			
-			if(restartGame == true && this.gameState == "GAME_OVER") {
+			if(restartGame == true && this.gameState.equals("GAME_OVER")) 
+			{
 				this.gameState = "NORMAL";
 				this.restartGame = false;
 				CUR_LEVEL = 1;
@@ -158,11 +179,13 @@ import com.flstudios.world.World;
 				world.restartGame(newWorld);
 			}
 			
-	}
+		}
 		
-		public void render() {
+		public void render() 
+		{
 			BufferStrategy bs = this.getBufferStrategy();
-			if(bs == null) {
+			if(bs == null) 
+			{
 				this.createBufferStrategy(3);
 				return;
 			}
@@ -172,18 +195,21 @@ import com.flstudios.world.World;
 			g.fillRect(0, 0, WIDTH, HEIGHT);
 			
 			world.render(g);
-			for(int i = 0; i < entities.size(); i++) {
+			for(int i = 0; i < entities.size(); i++) 
+			{
 				Entity e = entities.get(i);
 				e.render(g);
 			}
 			
-			for(int i = 0; i<bullets.size(); i++) {
+			for(int i = 0; i<bullets.size(); i++) 
+			{
 				bullets.get(i).render(g);
 			}
-			if(gameState == "NORMAL") {
-			g.setColor(Color.GREEN);
-			g.setFont(new Font("Arial", Font.ITALIC, 9));
-			g.drawString(strFPS,WIDTH -35, HEIGHT);
+			if(gameState.equals("NORMAL"))
+			{
+				g.setColor(Color.GREEN);
+				g.setFont(new Font("Arial", Font.ITALIC, 9));
+				g.drawString(strFPS,WIDTH -35, HEIGHT);
 			}
 			ui.render(g);
 			
@@ -194,7 +220,7 @@ import com.flstudios.world.World;
 			g.setFont(new Font("Arial", Font.BOLD, 20));
 			g.drawString("Muni\u00E7\u00E3o: "+ Player.ammoAtual + "/" + Player.ammoSafe, WIDTH*SCALE - 140, 20);
 			
-			if(gameState == "GAME_OVER") {
+			if(gameState.equals("GAME_OVER")) {
 				Graphics2D g2 = (Graphics2D) g;
 				g.setColor(new Color(0, 0, 0, 100));
 				g.fillRect(0, 0, WIDTH*SCALE, HEIGHT*SCALE);
@@ -206,7 +232,8 @@ import com.flstudios.world.World;
 				if(this.showMessageGameOver) {
 				g.drawString(">Pressione ENTER para continuar!",(WIDTH * SCALE) / 2 - (36 * SCALE) -70 , (HEIGHT*SCALE) / 2 + 40);
 				}
-			}else if(this.gameState == "MENU") {
+			}else if(this.gameState.equals("MENU")) 
+			{
 				menu.render(g);
 			}
 			
@@ -215,16 +242,18 @@ import com.flstudios.world.World;
 		
 		
 		
-		public void run() {
+		public void run() 
+		{
 	
 			requestFocus();
+
 			long lastTime = System.nanoTime();
 			double amountOFTicks = 60.0;
 			double ns = 1000000000 / amountOFTicks;
 			double delta = 0;
-			
 			double timer = System.currentTimeMillis();
-		while(isRunning) {
+			
+			while(isRunning) {
 			strFPS = "FPS: " + fpsAtual;
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
@@ -246,107 +275,127 @@ import com.flstudios.world.World;
 			
 	}
 
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
-				player.right = true;
-				//System.out.println("direita");
-			}
-			else if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
-				player.left = true;
-				//System.out.println("esquerda");
-			}
-			if(e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
-				player.up = true;
-				//System.out.println("cima");
-				
-				if(gameState == "MENU") {
-					menu.up = true;
-				}
-			}
-			else if(e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
-				player.down = true;
-				//System.out.println("baixo");
-				
-				if(gameState == "MENU") {
-					menu.down = true;
-				}
-			}
-			if(e.getKeyCode() == KeyEvent.VK_SHIFT ) {
-				player.speed = 1.4;
-			}
-			if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-				this.restartGame = true;
-				if(gameState == "MENU") {
-					menu.enter = true;
-				}
-			}
-			if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-				gameState = "MENU";
-				menu.pause = true;
-			}
-			
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) 
+		{
+			player.right = true;
+			//System.out.println("direita");
 		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
-				player.right = false;
-			}
-			else if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
-				player.left = false;
-			}
-			if(e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
-				player.up = false;
-			}
-			else if(e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
-				player.down = false;
-			}
-			if(e.getKeyCode() == KeyEvent.VK_X ) {
-				player.shoot = true;
-			}
-			if(e.getKeyCode() == KeyEvent.VK_SHIFT ) {
-				player.speed = 1.0;
-			}
-			
-			
-			
+		else if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
+			player.left = true;
+			//System.out.println("esquerda");
 		}
-
-		@Override
-		public void keyTyped(KeyEvent e) {
-			// TODO Auto-generated method stub
+		if(e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) 
+		{
+			player.up = true;
+			//System.out.println("cima");
 			
+			if(gameState.equals("MENU")) {
+				menu.up = true;
+			}
 		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+		else if(e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) 
+		{
+			player.down = true;
+			if(gameState.equals("MENU")) {
+				menu.down = true;
+			}
 		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+		if(e.getKeyCode() == KeyEvent.VK_X ) 
+		{
+			player.shoot = true;
 		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+		if(e.getKeyCode() == KeyEvent.VK_SHIFT ) {
+			player.speed = 1.4;
 		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			player.mouseShoot = true;
-			player.mx = (e.getX() / SCALE);
-			player.my = (e.getY() / SCALE);
-			
+		if(e.getKeyCode() == KeyEvent.VK_ENTER) 
+		{
+			this.restartGame = true;
+			if(gameState.equals("MENU")) {
+				menu.enter = true;
+			}
 		}
+		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) 
+		{
+			gameState = "MENU";
+			menu.pause = true;
+		}
+		if(e.getKeyCode() == KeyEvent.VK_R && player.hasGun == true && player.ammoAtual < 10 && player.ammoSafe > 0) 
+		{
+			player.reloading = true;
+		}
+	}
 
-		@Override
-		public void mouseReleased(MouseEvent e) {
-				player.mouseShoot = false;	
+	@Override
+	public void keyReleased(KeyEvent e) 
+	{
+		if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) 
+		{
+			player.right = false;
+		}
+		else if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) 
+		{
+			player.left = false;
+		}
+		if(e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W)
+		{
+			player.up = false;
+		}
+		else if(e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) 
+		{
+			player.down = false;
+		}
+		if(e.getKeyCode() == KeyEvent.VK_X ) 
+		{
+			player.shoot = false;
+		}
+		if(e.getKeyCode() == KeyEvent.VK_SHIFT ) 
+		{
+			player.speed = 1.0;
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) 
+	{
+		player.mouseShoot = true;
+		player.mx = (e.getX() / SCALE);
+		player.my = (e.getY() / SCALE);
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) 
+	{
+			player.mouseShoot = false;	
 	}
 }

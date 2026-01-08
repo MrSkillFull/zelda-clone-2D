@@ -18,7 +18,7 @@ import com.flstudios.world.World;
  * Responsabilidades:
  * - Movimentação + animação (direita/esquerda)
  * - Vida e feedback de dano
- * - Coleta de itens (vida/munição/arma)
+ * - Coleta de itens (vida/munição/hasGun)
  * - Disparo (tecla X e mouse) + recarga
  */
 public class Player extends Entity {
@@ -43,12 +43,12 @@ public class Player extends Entity {
 	private BufferedImage playerDamageLeft;
 	
 	// munição (estado global exibido na HUD)
-	public static int ammoAtual = 0,ammoAtualMax = 10,ammoSafe = 10, ammoSafeMax = 60,  maxAmmo = ammoAtualMax + ammoSafeMax;
+	public static int ammoAtual = 0,ammoAtualMax = 10,ammoSafe = 10, ammoSafeMax = 20,  maxAmmo = ammoAtualMax + ammoSafeMax;
 	public static boolean reloading = false; // indica se está recarregando (usado para desenhar barra)
 	public static int currentFramesReloading = 0, maxFramesReloading = 60; // controle da barra de recarga
 	
 	// combate
-	public boolean arma; // indica se possui arma
+	public boolean hasGun; // indica se possui hasGun
 	public boolean shoot = false; // disparo via teclado (X)
 	public boolean mouseShoot = false; // disparo via mouse
 	
@@ -80,11 +80,9 @@ public class Player extends Entity {
 	 */
 	public void tick() {
 		// estado de recarga (exibido na render)
-		reloading = false;
-		if(ammoAtual == 0 && ammoSafe > 0 && arma) {
+		if(ammoAtual == 0 && ammoSafe > 0 && hasGun) {
 			reloading = true;
-		}else
-			reloading = false;
+		}
 		
 		// movimentação + colisão com paredes
 		moved = false;
@@ -134,7 +132,7 @@ public class Player extends Entity {
 		
 			
 		// disparo via teclado (X)
-			if( arma == true && ammoAtual > 0 && shoot == true) {
+			if( hasGun == true && ammoAtual > 0 && shoot == true) {
 				shoot = false;
 				Sound.shoot.play();
 				ammoAtual--;
@@ -153,13 +151,13 @@ public class Player extends Entity {
 			}
 		
 		// disparo via mouse (calcula direção pelo ângulo)
-		if(arma && ammoAtual > 0 && mouseShoot) {
+		if(hasGun && ammoAtual > 0 && mouseShoot) {
 			mouseShoot = false;
 			Sound.shoot.play();
 			//System.out.println(angle);
 			
 			
-			if( arma == true && ammoAtual > 0) {
+			if( hasGun == true && ammoAtual > 0) {
 				ammoAtual--;
 				
 			int px = 0, py = 7;
@@ -241,7 +239,7 @@ public class Player extends Entity {
 	}
 	
 	/**
-	 * Coleta de arma: habilita o estado arma e dá munição inicial.
+	 * Coleta de hasGun: habilita o estado hasGun e dá munição inicial.
 	 */
 	public void checkCollisionWeapon() {
 		for(int i = 0; i < Game.entities.size(); i++) {
@@ -250,7 +248,7 @@ public class Player extends Entity {
 				if(Entity.isColidding(this, atual)) {
 					Sound.collect.play();
 					Game.entities.remove(atual);
-					arma = true;
+					hasGun = true;
 					ammoAtual+=5;
 				}
 			}
@@ -261,58 +259,83 @@ public class Player extends Entity {
 	
 	
 	/**
-	 * Renderização do jogador (sprites + arma + barra de recarga).
+	 * Renderização do jogador (sprites + hasGun + barra de recarga).
 	 */
 	public void render(Graphics g) {
 		if(!isDamaged) {
-		if(dir == right_dir) {
-			if(arma == true) {
-				//desenhar arma para a direita.
-				g.drawImage(WEAPON_RIGHT, this.getX() + 10 - Camera.x, this.getY() + 3 - Camera.y, null );
+			if(dir == right_dir) 
+			{
+				if(hasGun == true) {
+					//desenhar hasGun para a direita.
+					g.drawImage(WEAPON_RIGHT, this.getX() + 10 - Camera.x, this.getY() + 3 - Camera.y, null );
+				}
+				g.drawImage(rightPlayer[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
+				
 			}
-			g.drawImage(rightPlayer[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
-			
-		}else if(dir == left_dir) {
-			if(arma == true) {
-				//desenhar arma para a esquerda.
-				g.drawImage(WEAPON_LEFT, this.getX() - 10 - Camera.x, this.getY() + 3 - Camera.y, null );
+			else if(dir == left_dir) 
+			{
+				if(hasGun == true) {
+					//desenhar hasGun para a esquerda.
+					g.drawImage(WEAPON_LEFT, this.getX() - 10 - Camera.x, this.getY() + 3 - Camera.y, null );
+				}
+				g.drawImage(leftPlayer[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
 			}
-			g.drawImage(leftPlayer[index], this.getX() - Camera.x, this.getY() - Camera.y, null);
-			
+		}
+		
+		// feedback de dano
+		else {
+			if(dir == right_dir) 
+			{
+				g.drawImage(playerDamageRight, this.getX() - Camera.x, this.getY() - Camera.y, null);
 			}
-		}else {
-			if(dir == right_dir) {
-			g.drawImage(playerDamageRight, this.getX() - Camera.x, this.getY() - Camera.y, null);
-			}else if(dir == left_dir){
+			else if(dir == left_dir)
+			{
 				g.drawImage(playerDamageLeft, this.getX() - Camera.x, this.getY() - Camera.y, null);
 			}
-			if(arma == true) {
-				if(dir == right_dir) {
-				g.drawImage(WEAPON_RIGHT, this.getX() + 10 - Camera.x, this.getY() + 3 - Camera.y, null );
-				g.drawImage(playerDamageRight, this.getX() - Camera.x, this.getY() - Camera.y, null);
-				}else if(dir == left_dir){
+			if(hasGun == true) 
+			{
+				if(dir == right_dir) 
+				{
+					g.drawImage(WEAPON_RIGHT, this.getX() + 10 - Camera.x, this.getY() + 3 - Camera.y, null );
+					g.drawImage(playerDamageRight, this.getX() - Camera.x, this.getY() - Camera.y, null);
+				}
+				else if(dir == left_dir)
+				{
 					g.drawImage(WEAPON_LEFT, this.getX() - 10 - Camera.x, this.getY() + 3 - Camera.y, null );
 					g.drawImage(playerDamageLeft, this.getX() - Camera.x, this.getY() - Camera.y, null);
 				}
 			}
-			
 		}
 		
-		// barra de recarga (quando acabou munição atual mas ainda há reserva)
+		// barra de recarga (quando jogador está recarregando)
 		if(Game.player.reloading == true) {
 			g.setColor(Color.red);
 			g.fillRect(this.getX() - Camera.x, this.getY() - 5 - Camera.y, this.maxFramesReloading /3,5);
 			g.setColor(Color.yellow);
 			g.fillRect(this.getX() - Camera.x, this.getY() - 5 - Camera.y, this.currentFramesReloading /3,5);
 			this.currentFramesReloading++;
-			if(this.currentFramesReloading == this.maxFramesReloading && ammoSafe >= 10) {
-				ammoAtual+=10;
-				ammoSafe-=10;
+			if(this.currentFramesReloading == this.maxFramesReloading && ammoSafe != 0) {
+			
+				// completar munição atual a partir do estoque seguro
+				int ammoParaRecarregar = 0;
+				if((ammoSafe + ammoAtual) >= 10)
+				{
+					ammoParaRecarregar = 10 - ammoAtual;
+					ammoAtual	+= 	ammoParaRecarregar;
+					ammoSafe	-= 	ammoParaRecarregar;
+				}else
+				{
+					ammoParaRecarregar = ammoSafe;
+					ammoAtual += ammoParaRecarregar;
+				}
+				
+			
+				/*if(ammoSafe < 0)
+				{
+					ammoSafe = 0;
+				}*/
 				this.currentFramesReloading = 0;
-			}else if(Game.player.currentFramesReloading == Game.player.maxFramesReloading && ammoSafe < 10) {
-				ammoAtual += ammoSafe;
-				ammoSafe -= ammoSafe;
-				this.currentFramesReloading = 0;
+				reloading = false;
 			}
 		}
 	}
