@@ -2,6 +2,16 @@
 
 Este projeto segue um formato simples inspirado em “Keep a Changelog”.
 
+## v0.1.1 - 2026-01-08
+
+### Fixed
+- **Core:** Substituídas comparações de `gameState` usando `==` por `String.equals(...)` para evitar falhas de comparação.
+- **Core:** Implementado `stop()` para encerrar o loop principal, realizar `join()` da thread e liberar recursos adequadamente.
+- **Confiabilidade:** Correção do encerramento de threads/recursos para evitar hangs na finalização da aplicação.
+
+### Changed
+- **Documentação:** Atualizadas notas e recomendações no changelog para refletir as correções.
+
 ## v0.1.0 - 2026-01-02
 
 ### Added
@@ -14,10 +24,10 @@ Este projeto segue um formato simples inspirado em “Keep a Changelog”.
 ### Changed
 - **Inicial:** Primeiro estado público do projeto (MVP).
 
-### Known issues / Notes
-- Comparação de `String`: uso de `==` em `gameState` pode falhar; preferir `.equals(...)`.
-- `stop()` está vazio: thread/recursos não são finalizados corretamente.
+## Known issues / Notes
 
-### Next steps recomendados
-- Trocar comparações de `gameState` (`==`) por `.equals(...)`.
-- Implementar `stop()` (parar loop, `join` da thread, liberar recursos).
+- Melhorias incrementais de performance e refatoração pendentes.
+
+### Next Steps
+
+- Refatoração do código e análise de desempenho e melhoria de qualidade.
