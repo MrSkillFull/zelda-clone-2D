@@ -3,11 +3,15 @@
 Este projeto segue um formato simples inspirado em “Keep a Changelog”.
 
 ## v0.1.1 - 2026-01-08
+### Added
+- **UI:** Adicionada exibição da versão do jogo na tela de menu, visível ao usuário.
+- **Gameplay:** Adicionada mecânica de reload manual (tecla 'R') quando munição < 10.
 
 ### Fixed
 - **Core:** Substituídas comparações de `gameState` usando `==` por `String.equals(...)` para evitar falhas de comparação.
 - **Core:** Implementado `stop()` para encerrar o loop principal, realizar `join()` da thread e liberar recursos adequadamente.
 - **Confiabilidade:** Correção do encerramento de threads/recursos para evitar hangs na finalização da aplicação.
+- **Gameplay:** Corrigido bug onde a arma continuava disparando automaticamente após o reload automático.
 
 ### Changed
 - **Documentação:** Atualizadas notas e recomendações no changelog para refletir as correções.

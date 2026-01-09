@@ -11,3 +11,6 @@ bin/
 
 # Ignore o Release.md
 Release.md
+
+# Ignore arquivos de notas pessoais
+notas.txt
