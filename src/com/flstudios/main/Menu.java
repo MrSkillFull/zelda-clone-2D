@@ -80,7 +80,7 @@ public class Menu {
 		g.drawString(">Pixel Survival<", Game.WIDTH, Game.HEIGHT /2);
 		
 		// opções do menu
-			// novo jogo / continuar
+		// novo jogo / continuar
 		g.setColor(Color.white);
 		g.setFont(new Font("Arial", Font.BOLD, 24));
 		if(pause == false) {
@@ -113,6 +113,11 @@ public class Menu {
 			g.drawString(">", (Game.WIDTH /3) + 30*2, (Game.HEIGHT *2) + 30*2);
 			
 		}
+		
+		// versão do jogo
+		g.setColor(Color.white);
+		g.setFont(new Font("Arial", Font.BOLD, 12));
+		g.drawString("v0.1.1 alpha", Game.WIDTH *3 - 70, Game.HEIGHT *3 - 10);
 	}
 	
 }
