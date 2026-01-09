@@ -336,6 +336,8 @@ public class Player extends Entity {
 				}*/
 				this.currentFramesReloading = 0;
 				reloading = false;
+				shoot = false;
+				mouseShoot = false;
 			}
 		}
 	}
