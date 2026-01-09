@@ -8,3 +8,6 @@ bin/
 # Ignore arquivos binários
 *.class
 *.jar
+
+# Ignore o Release.md
+Release.md

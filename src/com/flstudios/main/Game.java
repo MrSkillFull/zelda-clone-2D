@@ -77,6 +77,8 @@ import com.flstudios.world.World;
 		
 		// Método construtor
 		public Game() {
+			// inicializa a janela do jogo e configurações básicas da tela
+			// ( cria e adiciona este Canvas ao JFrame )
 			initFrame();
 			ui = new UI();
 			rand = new Random();
@@ -97,6 +99,8 @@ import com.flstudios.world.World;
 		}
 		
 		public void initFrame() {
+			// configura as dimensões do Canvas e cria a janela principal
+			// define tamanho, adiciona o Canvas, centraliza e exibe
 			this.setPreferredSize(new Dimension(WIDTH*SCALE, HEIGHT*SCALE));
 			frame = new JFrame("PixelSurvival");
 			frame.add(this);
@@ -108,6 +112,7 @@ import com.flstudios.world.World;
 		}
 		
 		public synchronized void start() {
+			// inicia a thread principal do jogo e comuta o flag de execução
 			thread = new Thread(this);
 			isRunning = true;
 			thread.start();
@@ -115,6 +120,8 @@ import com.flstudios.world.World;
 		
 		public synchronized void stop() 
 		{
+			// para a execução do laço principal de forma segura e aguarda a
+			// finalização da thread antes de continuar
 			isRunning = false;
 			try 
 			{
@@ -123,10 +130,11 @@ import com.flstudios.world.World;
 			catch (InterruptedException e) 
 			{
 				e.printStackTrace();
-			}	
+			} 	
 		}
 		
 		public void tick() {
+			// atualiza a lógica do jogo conforme o estado atual
 			if(gameState.equals("NORMAL")) 
 			{
 				this.restartGame = false;
@@ -154,7 +162,8 @@ import com.flstudios.world.World;
 
 			else if(this.gameState.equals("MENU")) 
 			{
-			menu.tick();
+				// atualiza o menu quando o jogo está no estado de menu
+				menu.tick();
 			}
 
 			else if(this.gameState.equals("GAME_OVER")) 
@@ -172,6 +181,7 @@ import com.flstudios.world.World;
 			
 			if(restartGame == true && this.gameState.equals("GAME_OVER")) 
 			{
+				// reinicia o jogo após a tela de GAME OVER quando solicitado
 				this.gameState = "NORMAL";
 				this.restartGame = false;
 				CUR_LEVEL = 1;
@@ -183,6 +193,7 @@ import com.flstudios.world.World;
 		
 		public void render() 
 		{
+			// gerencia a renderização do jogo conforme o estado atual
 			BufferStrategy bs = this.getBufferStrategy();
 			if(bs == null) 
 			{
@@ -221,19 +232,22 @@ import com.flstudios.world.World;
 			g.drawString("Muni\u00E7\u00E3o: "+ Player.ammoAtual + "/" + Player.ammoSafe, WIDTH*SCALE - 140, 20);
 			
 			if(gameState.equals("GAME_OVER")) {
+				// desenha a sobreposição de GAME OVER e mensagem piscante
 				Graphics2D g2 = (Graphics2D) g;
 				g.setColor(new Color(0, 0, 0, 100));
 				g.fillRect(0, 0, WIDTH*SCALE, HEIGHT*SCALE);
-				
+			
 				g.setColor(Color.white);
 				g.setFont(new Font("Arial", Font.BOLD, 36));
 				g.drawString("GAME OVER", (WIDTH*SCALE) / 2 - (36*SCALE ), (HEIGHT*SCALE) /2);
 				g.setFont(new Font("Arial", Font.BOLD, 25));
 				if(this.showMessageGameOver) {
-				g.drawString(">Pressione ENTER para continuar!",(WIDTH * SCALE) / 2 - (36 * SCALE) -70 , (HEIGHT*SCALE) / 2 + 40);
+					// instrução para o jogador reiniciar
+					g.drawString(">Pressione ENTER para continuar!",(WIDTH * SCALE) / 2 - (36 * SCALE) -70 , (HEIGHT*SCALE) / 2 + 40);
 				}
 			}else if(this.gameState.equals("MENU")) 
 			{
+				// quando em MENU, delega a renderização ao objeto Menu
 				menu.render(g);
 			}
 			
@@ -244,34 +258,38 @@ import com.flstudios.world.World;
 		
 		public void run() 
 		{
-	
+			// solicita foco para receber eventos de teclado
 			requestFocus();
 
+			// inicialização do loop do jogo com controle de atualização
 			long lastTime = System.nanoTime();
 			double amountOFTicks = 60.0;
 			double ns = 1000000000 / amountOFTicks;
 			double delta = 0;
 			double timer = System.currentTimeMillis();
-			
+		
 			while(isRunning) {
-			strFPS = "FPS: " + fpsAtual;
-			long now = System.nanoTime();
-			delta += (now - lastTime) / ns;
-			lastTime = now;
+				// atualiza string de FPS para exibição
+				strFPS = "FPS: " + fpsAtual;
+				long now = System.nanoTime();
+				delta += (now - lastTime) / ns;
+				lastTime = now;
 			
-			if(delta >= 1) {
-				tick();
-				render();
-				frames++;
-				delta --;
-			}
+				// executa tick+render em taxa fixa (≈60Hz)
+				if(delta >= 1) {
+					tick();
+					render();
+					frames++;
+					delta --;
+				}
 			
-			if(System.currentTimeMillis() - timer >= 1000) {
-				fpsAtual = frames;
-				frames = 0;
-				timer = System.currentTimeMillis();
+				// atualiza contador de FPS a cada segundo
+				if(System.currentTimeMillis() - timer >= 1000) {
+					fpsAtual = frames;
+					frames = 0;
+					timer = System.currentTimeMillis();
+				}
 			}
-		}
 			
 	}
 
@@ -280,16 +298,13 @@ import com.flstudios.world.World;
 		if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) 
 		{
 			player.right = true;
-			//System.out.println("direita");
 		}
 		else if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
 			player.left = true;
-			//System.out.println("esquerda");
 		}
 		if(e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) 
 		{
 			player.up = true;
-			//System.out.println("cima");
 			
 			if(gameState.equals("MENU")) {
 				menu.up = true;
