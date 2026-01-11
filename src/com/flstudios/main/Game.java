@@ -322,7 +322,8 @@ import com.flstudios.world.World;
 			player.shoot = true;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT ) {
-			player.speed = 1.4;
+			player.speed = player.runSpeed;
+			player.isRunning = true;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_ENTER) 
 		{
@@ -367,7 +368,8 @@ import com.flstudios.world.World;
 		}
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT ) 
 		{
-			player.speed = 1.0;
+			player.speed = player.walkSpeed;
+			player.isRunning = false;
 		}
 	}
 

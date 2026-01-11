@@ -25,10 +25,11 @@ public class Player extends Entity {
 
 	// input/movimento
 	public boolean right, left, up, down; // flags setadas pelo Game via teclado
-	public int right_dir = 0, left_dir = 1; // direções lógicas
-	public int dir = right_dir; // direção atual
-	public double speed = 1.0; // velocidade de movimento
-	
+	public int right_dir = 0, left_dir = 1, dir = right_dir; // direções lógicas e direção atual
+	public double walkSpeed = 0.7, runSpeed = 1.0, speed = walkSpeed; // velocidade atual, velocidade de caminhada e velocidade de corrida
+	public boolean isRunning = false; // indica se o jogador está correndo
+	private int minStamina = 0, maxStamina = 100, curStamina = maxStamina; // estamina mínima, máxima e atual
+
 	// animação
 	private int frames = 0, maxFrames = 5, index = 0, maxIndex = 3; // controle de frames/índice
 	
@@ -43,13 +44,13 @@ public class Player extends Entity {
 	private BufferedImage playerDamageLeft;
 	
 	// munição (estado global exibido na HUD)
-	public static int ammoAtual = 0,ammoAtualMax = 10,ammoSafe = 10, ammoSafeMax = 20,  maxAmmo = ammoAtualMax + ammoSafeMax;
+	public static int ammoAtual = 0, ammoAtualMax = 10,ammoSafe = 10, ammoSafeMax = 20,  maxAmmo = ammoAtualMax + ammoSafeMax;
 	public static boolean reloading = false; // indica se está recarregando (usado para desenhar barra)
 	public static int currentFramesReloading = 0, maxFramesReloading = 60; // controle da barra de recarga
 	
 	// combate
-	public boolean hasGun; // indica se possui hasGun
-	public boolean shoot = false; // disparo via teclado (X)
+	public boolean hasGun; // indica se possui a arma
+	public boolean shoot = false; // disparo via teclado
 	public boolean mouseShoot = false; // disparo via mouse
 	
 	// feedback de dano
@@ -79,6 +80,7 @@ public class Player extends Entity {
 	 * Atualização por frame do jogador.
 	 */
 	public void tick() {
+
 		// estado de recarga (exibido na render)
 		if(ammoAtual == 0 && ammoSafe > 0 && hasGun) {
 			reloading = true;
@@ -116,7 +118,7 @@ public class Player extends Entity {
 			}
 		}
 		
-		// janela de invulnerabilidade/feedback (pisca por alguns frames)
+		// feedback de dano
 		if(isDamaged) {
 			this.damageFrames++;
 			if(this.damageFrames == 30) {
@@ -196,7 +198,7 @@ public class Player extends Entity {
 	}
 	
 	/**
-	 * Coleta de life pack: recupera uma quantidade randômica de vida.
+	 * Coleta de lifepack: recupera uma quantidade randômica de vida.
 	 */
 	public void checkCollisionLifePack() {
 		for(int i = 0; i < Game.entities.size(); i++) {
@@ -239,7 +241,7 @@ public class Player extends Entity {
 	}
 	
 	/**
-	 * Coleta de hasGun: habilita o estado hasGun e dá munição inicial.
+	 * Coleta de arma: habilita o estado hasGun e dá munição inicial.
 	 */
 	public void checkCollisionWeapon() {
 		for(int i = 0; i < Game.entities.size(); i++) {
@@ -259,7 +261,7 @@ public class Player extends Entity {
 	
 	
 	/**
-	 * Renderização do jogador (sprites + hasGun + barra de recarga).
+	 * Renderização do jogador (sprites + arma + barra de recarga).
 	 */
 	public void render(Graphics g) {
 		if(!isDamaged) {
@@ -328,16 +330,42 @@ public class Player extends Entity {
 					ammoParaRecarregar = ammoSafe;
 					ammoAtual += ammoParaRecarregar;
 				}
-				
 			
-				/*if(ammoSafe < 0)
-				{
-					ammoSafe = 0;
-				}*/
 				this.currentFramesReloading = 0;
 				reloading = false;
 				shoot = false;
 				mouseShoot = false;
+			}
+		}
+
+		// barra de estamina (quando jogador está correndo)
+		if(isRunning)
+		{
+			speed = runSpeed;
+			curStamina--;
+
+			if(curStamina <= minStamina)
+			{
+				curStamina = minStamina;
+				speed = walkSpeed;
+				isRunning = false;
+			}
+
+			// background da barra de estamina
+			g.setColor(Color.red);
+			g.fillRect(this.getX() - Camera.x, this.getY() - 10 - Camera.y,   (maxStamina * (maxFramesReloading /3)) / maxStamina,5);
+
+			// barra de estamina atual
+			g.setColor(Color.blue);
+			g.fillRect(this.getX() - Camera.x, this.getY() - 10 - Camera.y,  (curStamina * (maxFramesReloading /3)) / maxStamina ,5);
+		}
+		else
+		{
+			curStamina++;
+			if(curStamina > maxStamina)
+			{
+				curStamina = maxStamina;
+				speed = walkSpeed;
 			}
 		}
 	}
